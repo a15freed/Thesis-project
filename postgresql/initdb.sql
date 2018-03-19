@@ -1,5 +1,2 @@
-drop table if exists testtabell cascade;
-	CREATE TABLE testtabell(
-		id INT PRIMARY KEY 	NOT NULL,
-		data jsonb 			NOT NULL
-	);
+drop table if exists json_table;
+CREATE TABLE public.json_table (json_data JSONB);
