@@ -4,25 +4,26 @@
 // https://stackoverflow.com/questions/8169139/adding-minutes-to-date-time-in-php
 // http://www.postgresqltutorial.com/postgresql-json/
 // https://datavirtuality.com/blog/json-in-postgresql/
+
 // this will include the file dbconnect.php which contains credentials
-// https://datavirtuality.com/blog/json-in-postgresql/
 include "../dbconnect.php";
 
 // variables
-$inserts = 5;
-$idM = 25454;
-$wattsHour = 90;
-$idCounter = 0;
+$inserts = 5;         // inserts
+$customerID = 0;      // customer id
+$idM = 25454;         // id for the meausurment
+$watts = 90;          // start value
+$lampWatts = 60;      // the watts for the lamp
 
 $time = date('Y-m-d H:i:s');
 
 // loop to create JSON data
 for ($i = 1; $i <= $inserts; $i++) {
   $wattsRand = 0;
-  $wattsRand = $wattsRand + rand(1,8);
-  $wattsHour = $wattsHour + (60 * $wattsRand)/1000;
+  $wattsRand = $wattsRand + rand(1,8);    // random hour 1-8 hour that lamp is lit
+  $watts = $watts + ($lampWatts * $wattsRand)/1000;
   $idM++;
-  $idCounter++;
+  $customerID++;
 
   $jsonArray = array(
               'smartMeter' => array(
@@ -35,16 +36,16 @@ for ($i = 1; $i <= $inserts; $i++) {
               'measurements' => array(
                                   'id' => $idM,
                                   'date' => $time,
-                                  'kWh' => $wattsHour,
+                                  'kWh' => $watts,
                               ),
           );
-  $time = date('Y-m-d H:i:s', strtotime($time.'+1 minute'));
+  $time = date('Y-m-d H:i:s', strtotime($time.'+1 seconds'));
 
   // encode array to string
   $jsonArrayEncoded = json_encode($jsonArray);
 
   // insert array to database
-  $sqlQuery = "INSERT INTO json_table VALUES ('$idCounter','$jsonArrayEncoded')";
+  $sqlQuery = "INSERT INTO json_table VALUES ('$customerID','$jsonArrayEncoded')";
 
   try {
     // check if error occured
