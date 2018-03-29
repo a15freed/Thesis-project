@@ -8,21 +8,25 @@
 // this will include the file dbconnect.php which contains credentials
 include "../dbconnect.php";
 
-// variables
-$inserts = 5;         // inserts
-$customerID = 0;      // customer id
-$idM = 25454;         // id for the meausurment
+// changable variables
+$inserts = 2;         // inserts
+$measureHours = 2;    // hours to measure
 $watts = 90;          // start value
-$lampWatts = 60;      // the watts for the lamp
+$lampWatts = 60;      // the watts of the lamp
+$idM = 2;         // id for the meausurment
+
+// strict variables
+$customerID = 0;      // customer id
+$secondsPH = 3600;    // seconds per hour
+$measuresToDo = ($measureHours * $secondsPH);
 
 $time = date('Y-m-d H:i:s');
 
 // loop to create JSON data
 for ($i = 1; $i <= $inserts; $i++) {
-  $wattsRand = 0;
-  $wattsRand = $wattsRand + rand(1,8);    // random hour 1-8 hour that lamp is lit
-  $watts = $watts + ($lampWatts * $wattsRand)/1000;
-  $idM++;
+
+  $jsonArray = array();
+  
   $customerID++;
 
   $jsonArray = array(
@@ -32,20 +36,33 @@ for ($i = 1; $i <= $inserts; $i++) {
                                   'sensorType' => 'Electric',
                                   'createdOn' => '20180205',
                               ),
+              );
+  
+  $jsonArray2 = array();
 
-              'measurements' => array(
-                                  'id' => $idM,
-                                  'date' => $time,
-                                  'kWh' => $watts,
-                              ),
-          );
-  $time = date('Y-m-d H:i:s', strtotime($time.'+1 seconds'));
-
+    for ($i = 0; $i <= $measuresToDo; $i++) {
+      $wattsRand = 0;     // reset varable
+      $wattsRand = $wattsRand + rand(1,8);    // random hour 1-8 hour that lamp is lit
+      $watts = $watts + ($lampWatts * $wattsRand)/1000; // the lamps consumption /h
+      
+      $jsonArray2 = array(
+                'measurements' => array(
+                            'id' => $idM,  
+                            'date' => $time,
+                            'kWh' => $watts,
+                          ),
+      );
+      $time = date('Y-m-d H:i:s', strtotime($time.'+1 seconds'));
+      $idM++;
+    }
+  
+  $jsonArrayMerge = array_merge($jsonArray, $jsonArray2);
+  
   // encode array to string
-  $jsonArrayEncoded = json_encode($jsonArray);
+  $jsonArrayEncoded = json_encode($jsonArrayMerge);
 
   // insert array to database
-  $sqlQuery = "INSERT INTO json_table VALUES ('$customerID','$jsonArrayEncoded')";
+  $sqlQuery = "INSERT INTO json_table (id, data) VALUES ('$customerID','$jsonArrayEncoded')";
 
   try {
     // check if error occured
@@ -60,4 +77,5 @@ for ($i = 1; $i <= $inserts; $i++) {
     echo "<span style='background-color: #f44336'>An error occured</span>";
   }
 }
+var_dump($result);
 ?>
