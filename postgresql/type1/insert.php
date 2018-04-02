@@ -13,22 +13,19 @@ $inserts = 2;         // inserts
 $measureHours = 2;    // hours to measure
 $watts = 90;          // start value
 $lampWatts = 60;      // the watts of the lamp
-$idM = 2;         // id for the meausurment
+$idM = 0;         // id for the meausurment
 
 // strict variables
 $customerID = 0;      // customer id
-$secondsPH = 3600;    // seconds per hour
+$secondsPH = 20;    // seconds per hour
 $measuresToDo = ($measureHours * $secondsPH);
-
 $time = date('Y-m-d H:i:s');
 
 // loop to create JSON data
-for ($i = 1; $i <= $inserts; $i++) {
-
-  $jsonArray = array();
+for ($i = 0; $i <= $inserts; $i++) {
   
   $customerID++;
-
+  $jsonArray = array(); // reset array
   $jsonArray = array(
               'smartMeter' => array(
                                   'id' => '1',
@@ -38,32 +35,37 @@ for ($i = 1; $i <= $inserts; $i++) {
                               ),
               );
   
-  $jsonArray2 = array();
+  $jsonArray2 = array();  // reset array
+  $jsonArray2 = array(
+                    'measurements' => array());
 
     for ($i = 0; $i <= $measuresToDo; $i++) {
       $wattsRand = 0;     // reset varable
       $wattsRand = $wattsRand + rand(1,8);    // random hour 1-8 hour that lamp is lit
       $watts = $watts + ($lampWatts * $wattsRand)/1000; // the lamps consumption /h
       
-      $jsonArray2 = array(
-                'measurements' => array(
+      $jsonPushData = array(
                             'id' => $idM,  
                             'date' => $time,
                             'kWh' => $watts,
-                          ),
       );
       $time = date('Y-m-d H:i:s', strtotime($time.'+1 seconds'));
       $idM++;
+      array_push($jsonArray2['measurements'], $jsonPushData);
     }
-  
-  $jsonArrayMerge = array_merge($jsonArray, $jsonArray2);
+  // var_dump($jsonArray);
+  // var_dump($jsonArray2);
+  $result = array_merge($jsonArray, $jsonArray2);
+  // $result = $jsonArray + $jsonArray2;
+  var_dump($result);
   
   // encode array to string
-  $jsonArrayEncoded = json_encode($jsonArrayMerge);
+  $jsonArrayEncoded = json_encode($result);
+  // var_dump($jsonArrayEncoded);
 
   // insert array to database
-  $sqlQuery = "INSERT INTO json_table (id, data) VALUES ('$customerID','$jsonArrayEncoded')";
-
+  $sqlQuery = "INSERT INTO json_table (id, data) VALUES (DEFAULT, '$jsonArrayEncoded')";
+  
   try {
     // check if error occured
     $ret = pg_query($dbconn, $sqlQuery);
@@ -76,6 +78,6 @@ for ($i = 1; $i <= $inserts; $i++) {
   } catch (PDOException $e) {
     echo "<span style='background-color: #f44336'>An error occured</span>";
   }
+  pg_close($dbconn);
 }
-var_dump($result);
 ?>
