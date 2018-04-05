@@ -5,14 +5,16 @@
 // http://www.postgresqltutorial.com/postgresql-json/
 // https://datavirtuality.com/blog/json-in-postgresql/
 // https://stackoverflow.com/questions/6245971/accurate-way-to-measure-execution-times-of-php-scripts
-// http://php.net/manual/en/function.array-fill-keys.php
 // https://stackoverflow.com/questions/18765899/im-using-php-and-need-to-insert-into-sql-using-a-while-loop
+// Accurate way to measure execution times of php scripts
 
 // this will include the file dbconnect.php which contains credentials
 include "../dbconnect.php";
 
-$inserts = 1;
-while($inserts <= 10){
+$inserts = 10;
+$measures = 10;
+$index = 1;
+while($index <= $inserts){
     	
 	$jsonArray = array(
 
@@ -27,7 +29,7 @@ while($inserts <= 10){
 	'measurements' => array(),	
 	);
 	
-	for ($i=0; $i <5 ; $i++) { 
+	for ($i=0; $i <$measures ; $i++) { 
 
 		$Data = array(
 	        'id' => 12,  
@@ -54,5 +56,5 @@ while($inserts <= 10){
   } catch (PDOException $e) {
     echo "<span style='background-color: #f44336'>An error occured</span>";
   }
-$inserts++;}
+$index++;}
 ?>
