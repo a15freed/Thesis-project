@@ -11,10 +11,12 @@
 // this will include the file dbconnect.php which contains credentials
 include "../dbconnect.php";
 
+// variables
 $inserts = 10;
-$measures = 100;
+$measures = 20;
 $index = 1;
 
+// generate json data
 while($index <= $inserts){
     	
 	$jsonArray = array(
@@ -53,6 +55,6 @@ while($index <= $inserts){
 	// calculate execution time
 	$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
 	echo "<br>";
-	echo "time elapsed: $exeTime";
+	echo "time elapsed: ".number_format(($exeTime), 2);
 }
 ?>
