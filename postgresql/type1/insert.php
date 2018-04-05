@@ -6,15 +6,14 @@
 // https://datavirtuality.com/blog/json-in-postgresql/
 // https://stackoverflow.com/questions/6245971/accurate-way-to-measure-execution-times-of-php-scripts
 // http://php.net/manual/en/function.array-fill-keys.php
+// https://stackoverflow.com/questions/18765899/im-using-php-and-need-to-insert-into-sql-using-a-while-loop
 
 // this will include the file dbconnect.php which contains credentials
 include "../dbconnect.php";
 
-$jsonArray = array();
-$Data = array();
-
-for ($i=0; $i <=5 ; $i++) { 
-	
+$inserts = 1;
+while($inserts <= 10){
+    	
 	$jsonArray = array(
 
 	'smartMeter' => array(
@@ -36,12 +35,24 @@ for ($i=0; $i <=5 ; $i++) {
 	        'kWh' => 67,
       	);
 		array_push($jsonArray['measurements'], $Data);
-		//array_fill_keys($jsonArray['measurements'] => $Data);
 	}
-	header('Content-Type: application/json');
-	echo json_encode($jsonArray, JSON_PRETTY_PRINT);
-}
+	
+	// encode array to string
+	$jsonArrayEncoded = json_encode($jsonArray);
 
-//echo json_encode($jsonArray);
+	// insert array to database
+	$sqlQuery = "INSERT INTO json_table (data) VALUES ('$jsonArrayEncoded')";
+	try {
+    // check if error occured
+    $ret = pg_query($dbconn, $sqlQuery);
+    if(!$ret) {
+      echo pg_last_error($dbconn);
+    } else {
+      echo "<span style='background-color: #4CAF50'>The insert was successfully";
+    }
 
+  } catch (PDOException $e) {
+    echo "<span style='background-color: #f44336'>An error occured</span>";
+  }
+$inserts++;}
 ?>
