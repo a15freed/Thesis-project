@@ -6,14 +6,15 @@
 // https://datavirtuality.com/blog/json-in-postgresql/
 // https://stackoverflow.com/questions/6245971/accurate-way-to-measure-execution-times-of-php-scripts
 // https://stackoverflow.com/questions/18765899/im-using-php-and-need-to-insert-into-sql-using-a-while-loop
-// Accurate way to measure execution times of php scripts
+// http://thisinterestsme.com/php-calculate-execution-time/
 
 // this will include the file dbconnect.php which contains credentials
 include "../dbconnect.php";
 
 $inserts = 10;
-$measures = 10;
+$measures = 100;
 $index = 1;
+
 while($index <= $inserts){
     	
 	$jsonArray = array(
@@ -44,17 +45,14 @@ while($index <= $inserts){
 
 	// insert array to database
 	$sqlQuery = "INSERT INTO json_table (data) VALUES ('$jsonArrayEncoded')";
-	try {
-    // check if error occured
-    $ret = pg_query($dbconn, $sqlQuery);
-    if(!$ret) {
-      echo pg_last_error($dbconn);
-    } else {
-      echo "<span style='background-color: #4CAF50'>The insert was successfully";
-    }
+	$runQuery = pg_query($dbconn, $sqlQuery);
+    
+    // increase counter for while loop
+	$index++;
 
-  } catch (PDOException $e) {
-    echo "<span style='background-color: #f44336'>An error occured</span>";
-  }
-$index++;}
+	// calculate execution time
+	$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+	echo "<br>";
+	echo "time elapsed: $exeTime";
+}
 ?>
