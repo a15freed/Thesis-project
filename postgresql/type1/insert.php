@@ -18,7 +18,7 @@ $index = 1;
 
 // generate json data
 while($index <= $inserts){
-    	
+
 	$jsonArray = array(
 
 	'smartMeter' => array(
@@ -29,32 +29,36 @@ while($index <= $inserts){
 	      'createdOn' => '20180205',
 	  	),
 
-	'measurements' => array(),	
+	'measurements' => array(),
 	);
-	
-	for ($i=0; $i <$measures ; $i++) { 
+
+	for ($i=0; $i <$measures ; $i++) {
 
 		$Data = array(
-	        'id' => 12,  
+	        'id' => 12,
 	        'date' => 45,
 	        'kWh' => 67,
       	);
 		array_push($jsonArray['measurements'], $Data);
 	}
-	
+
 	// encode array to string
 	$jsonArrayEncoded = json_encode($jsonArray);
 
 	// insert array to database
 	$sqlQuery = "INSERT INTO json_table (data) VALUES ('$jsonArrayEncoded')";
 	$runQuery = pg_query($dbconn, $sqlQuery);
-    
-    // increase counter for while loop
+
+  // increase counter for while loop
 	$index++;
 
 	// calculate execution time
 	$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
 	echo "<br>";
 	echo "time elapsed: ".number_format(($exeTime), 2);
+
+  // write values of exeTime to file
+  $file = 'measurements.txt';
+  file_put_contents($file, number_format(($exeTime), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
 }
 ?>
