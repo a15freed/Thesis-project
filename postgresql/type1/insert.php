@@ -12,11 +12,12 @@
 include "../dbconnect.php";
 
 // variables
-$inserts = 10;        // inserts to do (customers)
+$inserts = 100;        // inserts to do (customers)
 $measures = 3600;     // Measures per sensor
 $idM = 123456;        // random measurements ID
 $lampWatt = 60;       // the lamps watts
 $wattsHour = 25;      // starting watts value for lamp
+$time = date('Y-m-d H:i:s');
 
 // generate json data
 $index = 1;
@@ -43,10 +44,11 @@ while($index <= $inserts){
     $wattsRand = $wattsRand + rand(0,8); // lamp is lit between 0-8 hours/day
     $wattsHour = $wattsHour + ($lampWatt * $wattsRand)/1000;
     $wattsHour = number_format(($wattsHour), 2);
+    $time = date('Y-m-d H:i:s', strtotime($time.'+1 minute'));
 
 		$Data = array(
 	        'id' => $idM,
-	        'date' => 45,
+	        'date' => $time,
 	        'kWh' => $wattsHour,
       	);
 		array_push($jsonArray['measurements'], $Data);
