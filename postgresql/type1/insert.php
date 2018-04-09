@@ -12,11 +12,14 @@
 include "../dbconnect.php";
 
 // variables
-$inserts = 10;
-$measures = 20;
-$index = 1;
+$inserts = 10;        // inserts to do (customers)
+$measures = 3600;     // Measures per sensor
+$idM = 123456;        // random measurements ID
+$lampWatt = 60;       // the lamps watts
+$wattsHour = 25;      // starting watts value for lamp
 
 // generate json data
+$index = 1;
 while($index <= $inserts){
 
 	$jsonArray = array(
@@ -33,11 +36,18 @@ while($index <= $inserts){
 	);
 
 	for ($i=0; $i <$measures ; $i++) {
+    $idM++;
+
+    // to simulate the consumption in watt for the lamp
+    $wattsRand = 0;
+    $wattsRand = $wattsRand + rand(0,8); // lamp is lit between 0-8 hours/day
+    $wattsHour = $wattsHour + ($lampWatt * $wattsRand)/1000;
+    $wattsHour = number_format(($wattsHour), 2);
 
 		$Data = array(
-	        'id' => 12,
+	        'id' => $idM,
 	        'date' => 45,
-	        'kWh' => 67,
+	        'kWh' => $wattsHour,
       	);
 		array_push($jsonArray['measurements'], $Data);
 	}
@@ -51,14 +61,13 @@ while($index <= $inserts){
 
   // increase counter for while loop
 	$index++;
-
-	// calculate execution time
-	$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
-	echo "<br>";
-	echo "time elapsed: ".number_format(($exeTime), 2);
-
-  // write values of exeTime to file
-  $file = 'measurements.txt';
-  file_put_contents($file, number_format(($exeTime), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
 }
+// calculate execution time
+$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+echo "<br>";
+echo "time elapsed: ".number_format(($exeTime), 2);
+
+// write values of exeTime to file
+$file = 'measurements.txt';
+file_put_contents($file, number_format(($exeTime), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
 ?>
