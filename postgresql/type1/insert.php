@@ -63,6 +63,15 @@ while($index <= $inserts){
 
   // increase counter for while loop
 	$index++;
+
+	// calculate execution time
+	$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+	echo "<br>";
+	echo "time elapsed: ".number_format(($exeTime), 2);
+
+	// write values of exeTime to file
+	$file = 'measurements_plot.txt';
+	file_put_contents($file, number_format(($exeTime), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
 }
 // calculate execution time
 $exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
@@ -70,6 +79,6 @@ echo "<br>";
 echo "time elapsed: ".number_format(($exeTime), 2);
 
 // write values of exeTime to file
-$file = 'measurements.txt';
+$file = 'measurements_total.txt';
 file_put_contents($file, number_format(($exeTime), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
 ?>
