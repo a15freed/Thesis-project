@@ -20,4 +20,5 @@
 		$file = 'measurements_query.txt';
 		file_put_contents($file, number_format(($exeTime), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
 	}
+	echo "Select done!";
 ?>
