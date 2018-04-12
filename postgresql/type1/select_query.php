@@ -12,7 +12,6 @@
 
 		// query the database
 		$result = pg_query($dbconn,"SELECT ID FROM json_table WHERE ID=$randomNmb");
-		var_dump($randomNmb);
 
 		// calculate execution time
 		$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
