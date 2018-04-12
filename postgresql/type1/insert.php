@@ -12,8 +12,8 @@
 include "../dbconnect.php";
 
 // variables
-$inserts = 100;        // inserts to do (customers)
-$measures = 3600;     // Measures per sensor
+$inserts = 1000;      // inserts to do (customers)
+$measures = 1440;     // Measures per sensor/inserts and day
 $idM = 123456;        // random measurements ID
 $lampWatt = 60;       // the device watts
 $wattsHour = 25;      // starting watts value for device
@@ -66,8 +66,6 @@ while($index <= $inserts){
 
 	// calculate execution time
 	$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
-	echo "<br>";
-	echo "time elapsed: ".number_format(($exeTime), 2);
 
 	// write values of exeTime to file
 	$file = 'measurements_plot.txt';
@@ -75,8 +73,6 @@ while($index <= $inserts){
 }
 // calculate execution time
 $exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
-echo "<br>";
-echo "time elapsed: ".number_format(($exeTime), 2);
 
 // write values of exeTime to file
 $file = 'measurements_total.txt';
