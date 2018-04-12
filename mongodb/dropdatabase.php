@@ -1,7 +1,4 @@
 <?php
-$db = (new MongoDB\Driver\Manager)->dbName;
-
-$result = $db->dropCollection('collectionName');
-
-var_dump($result);
+include "initdb.php";
+$mng->executeCommand('dbName', new \MongoDB\Driver\Command(["drop" => "collectionName"]));
  ?>
