@@ -12,16 +12,18 @@
 include "../dbconnect.php";
 
 // variables
-$inserts = 1000;      // inserts to do (customers)
-$measures = 1440;     // Measures per sensor/inserts and day
+$inserts = 10;      // inserts to do (customers)
+$measures = 14;     // Measures per sensor/inserts and day
 $idM = 123456;        // random measurements ID
 $lampWatt = 60;       // the device watts
 $wattsHour = 25;      // starting watts value for device
 $time = date('Y-m-d H:i:s');
+$timeArray= [];
 
 // generate json data
 $index = 1;
 while($index <= $inserts){
+$timeStart = microtime(true);
 
 	$jsonArray = array(
 
@@ -53,6 +55,7 @@ while($index <= $inserts){
       	);
 		array_push($jsonArray['measurements'], $Data);
 	}
+	$timeEnd = microtime(true);
 
 	// encode array to string
 	$jsonArrayEncoded = json_encode($jsonArray);
@@ -64,13 +67,18 @@ while($index <= $inserts){
   // increase counter for while loop
 	$index++;
 
-	// calculate execution time
-	$exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
-
-	// write values of exeTime to file
-	$file = 'measurements_plot.txt';
-	file_put_contents($file, number_format(($exeTime), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
+	//Measure response time
+	$timeDiff = $timeEnd - $timeStart;
+	array_push($timeArray, $timeDiff);
 }
+// write values of exeTime to file
+$file = 'measurements_plot.txt';
+foreach ($timeArray as $value) {
+	file_put_contents($file, number_format(($value), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
+}
+//file_put_contents($file, $timeArray).PHP_EOL;
+var_dump($timeArray);
+
 // calculate execution time
 $exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
 
