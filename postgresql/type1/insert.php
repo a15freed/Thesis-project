@@ -12,8 +12,8 @@
 include "../dbconnect.php";
 
 // variables
-$inserts = 10;      // inserts to do (customers)
-$measures = 14;     // Measures per sensor/inserts and day
+$inserts = 1000;      // inserts to do (customers)
+$measures = 140;      // Measures per inserts and day
 $idM = 123456;        // random measurements ID
 $lampWatt = 60;       // the device watts
 $wattsHour = 25;      // starting watts value for device
@@ -67,17 +67,16 @@ $timeStart = microtime(true);
   // increase counter for while loop
 	$index++;
 
-	//Measure response time
+	//Measure response time and push to array
 	$timeDiff = $timeEnd - $timeStart;
+	$timeDiff = number_format(($timeDiff), 4);
 	array_push($timeArray, $timeDiff);
 }
-// write values of exeTime to file
-$file = 'measurements_plot.txt';
-foreach ($timeArray as $value) {
-	file_put_contents($file, number_format(($value), 2).PHP_EOL, FILE_APPEND | LOCK_EX);
-}
-//file_put_contents($file, $timeArray).PHP_EOL;
-var_dump($timeArray);
+	// write values from timeArray to file
+	$file = 'measurements_plot.txt';
+	foreach ($timeArray as $key=>$value) {
+		file_put_contents($file, $value.PHP_EOL, FILE_APPEND | LOCK_EX);
+	}
 
 // calculate execution time
 $exeTime = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
