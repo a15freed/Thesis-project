@@ -11,9 +11,11 @@
 // this will include the file dbconnect.php which contains credentials
 include "../dbconnect.php";
 
+set_time_limit(3600);
+
 // variables
-$inserts = 1000;      // inserts to do (customers)
-$measures = 140;      // Measures per inserts and day
+$inserts = 1000000;      // inserts to do (customers)
+$measures = 1440;      // Measures per inserts and day
 $idM = 123456;        // random measurements ID
 $lampWatt = 60;       // the device watts
 $wattsHour = 25;      // starting watts value for device
