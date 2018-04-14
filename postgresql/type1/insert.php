@@ -14,8 +14,8 @@ include "../dbconnect.php";
 set_time_limit(7200);
 
 // variables
-$iterations = 10;							// how many runs
-$inserts = 1000;      				// inserts to do (customers)
+$iterations =2;							// how many runs
+$inserts = 10;      				// inserts to do (customers)
 $measures = 1440;     				// measures per inserts
 $fileNr = 0;									// save file counter
 $idM = 123456;        				// random measurements ID
@@ -90,6 +90,9 @@ while($index <= $iterations){
 	$timeArray= [];
 
 	// clear DB after each iteration except after last one
+	if ($index < $iterations) {
 		include('initdb.php');
+	}
+		// do nothing
 }
 ?>
