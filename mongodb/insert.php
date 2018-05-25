@@ -1,9 +1,95 @@
 <?php
-$mongo = new MongoDB\Driver\Manager('mongodb://localhost:27017');
+require "vendor/autoload.php";
+$client = new MongoDB\Client("mongodb://localhost:27017");
+$collection = $client->exjobb->json_data;
 
-$bulkWrite = new MongoDB\Driver\BulkWrite;
-$bulkWrite->insert(['name' => 'Ceres', 'size' => 946, 'distance' => 2.766]);
-$bulkWrite->insert(['name' => 'Vesta', 'size' => 525, 'distance' => 2.362]);
+set_time_limit(0);
 
-$mongo->executeBulkWrite("exjobb.json_smartmeter_data", $bulkWrite);
+// variables
+$iterations = 5;							// how many runs
+$inserts = 2000;      				// inserts to do (customers)
+$measures = 1440;      				// measures per inserts
+$fileNr = 0;									// save file counter
+$idM = 123456;        				// random measurements ID
+$deviceWatt = 60;     				// the device watts
+$startWatt = 25;      				// starting watts value for device
+$time = date('Y-m-d H:i:s');	// get time
+$timeArray= [];								// array to push response time
+
+// start iteration
+$index = 1;
+while($index <= $iterations){
+	$timeStart2 = microtime(true);
+	$index++;
+	$fileNr++;
+
+	// generate json data
+	$index2 = 1;
+	while($index2 <= $inserts){
+		$timeStart = microtime(true);
+		$index2++;
+		$jsonArray = array(
+
+		'smartMeter' => array(
+
+		      'id' => '1',
+		      'device' => 'Eliond',
+		      'sensorType' => 'Electric',
+		      'createdOn' => '20180205',
+		  	),
+
+		'measurements' => array(),
+		);
+
+		for ($i=0; $i <$measures ; $i++) {
+	    $idM++;
+
+	    // to simulate the consumption in watt for the device
+	    $wattsRand = 0;
+	    $wattsRand = $wattsRand + rand(0,8); // device is on between 0-8 hours/day
+	    $startWatt = $startWatt + ($deviceWatt * $wattsRand)/1000;
+	    $startWatt = number_format(($startWatt), 2);
+	    $time = date('Y-m-d H:i:s', strtotime($time.'+1 min'));
+
+			$Data = array(
+		        'id' => $idM,
+		        'date' => $time,
+		        'kWh' => $startWatt,
+	      	);
+			array_push($jsonArray['measurements'], $Data);
+		}
+		// insert array to database
+		$result = $collection->insertOne( $jsonArray );
+
+		$timeEnd = microtime(true);
+
+		//Measure response time and push to array
+		$timeDiff = $timeEnd - $timeStart;
+		$timeDiff = number_format(($timeDiff), 6);
+		array_push($timeArray, $timeDiff);
+	}
+	$timeEnd2 = microtime(true);
+
+	// write values from timeArray to file
+	$file = 'measurements_plot_'.$fileNr.'.txt';
+	foreach ($timeArray as $key=>$value) {
+		file_put_contents($file, $value.PHP_EOL, FILE_APPEND | LOCK_EX);
+		}
+
+	//clear timeArray
+	$timeArray= [];
+
+	// calc time
+  $timeDiff2 = $timeEnd2 - $timeStart2;
+  $timeDiff2 = number_format(($timeDiff2), 3);
+
+  // write values from timeArray to file
+  $file = 'measurements.txt';
+  file_put_contents($file, $timeDiff2.PHP_EOL, FILE_APPEND | LOCK_EX);
+
+	// clear DB after each iteration except after last one
+	if ($index < $iterations) {
+		include('initdb.php');
+	}
+}
 ?>
