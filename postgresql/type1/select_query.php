@@ -1,45 +1,66 @@
 <?php
-	// this will include the file dbconnect.php which contains credentials
-	include "../dbconnect.php";
+// this will include the file dbconnect.php which contains credentials
+include "../dbconnect.php";
 
-	$iterations = 10;
-	$queries = 1000;
-	$maxRows = 1000;
-	$fileNr = 0;
-	$queryArray= [];
+set_time_limit(0);
 
-	$index = 1;
-	while($index <= $iterations){
-		$fileNr++;
-		$index++;
-		while ($index2 <= $queries) {
-			$timeStart = microtime(true);
-			$index2++;
+// variables
+$iterations = 5;							// how many runs
+$maxRows = 10000;							// row in db
+$queries = 10000;     					// measures per inserts
+$fileNr = 0;									// save file counter
+$timeArray= [];								// array to push response time
 
-			// choose random ID
-			$randomNmb = rand(1,$maxRows);
+// start iteration
+$index = 1;
+while($index <= $iterations){
+	$timeStart2 = microtime(true);
+	$index++;
+	$fileNr++;
 
-			// query the database
-			try {
-			$result = pg_query($dbconn,"SELECT ID FROM json_table WHERE ID=$randomNmb");	
-			} catch (\Exception $e) {
 
-			}
+	$index2 = 1;
+	while($index2 <= $queries){
+		$timeStart = microtime(true);
+		$index2++;
 
-			// calculate execution time
-			$timeEnd = microtime(true);
-			$timeDiff = $timeEnd - $timeStart;
-			$timeDiff = number_format(($timeDiff), 6);
+		// choose random ID
+		$randomNmb = rand(1,$maxRows);
 
-			array_push($queryArray, $timeDiff);
+		// query the database
+		$result = pg_query($dbconn,"SELECT ID FROM json_table WHERE ID=$randomNmb");
 
+		$timeEnd = microtime(true);
+
+		//Measure response time and push to array
+		$timeDiff = $timeEnd - $timeStart;
+		$timeDiff = number_format(($timeDiff), 6);
+		array_push($timeArray, $timeDiff);
 		}
-		// write values of timeArray to file
-		$file = 'measurements_query_'.$fileNr.'.txt';
-		foreach ($queryArray as $key=>$value) {
+
+		$timeEnd2 = microtime(true);
+
+		// calc time
+		$timeDiff2 = $timeEnd2 - $timeStart2;
+		$timeDiff2 = number_format(($timeDiff2), 3);
+
+		// write values from timeArray to file
+		$file = 'measurements_query.txt';
+		file_put_contents($file, $timeDiff2.PHP_EOL, FILE_APPEND | LOCK_EX);
+
+		// clear DB after each iteration except after last one
+		if ($index < $iterations) {
+			include('initdb.php');
+		}
+
+
+		// write values from timeArray to file
+		$file = 'measurements_plot_'.$fileNr.'.txt';
+		foreach ($timeArray as $key=>$value) {
 			file_put_contents($file, $value.PHP_EOL, FILE_APPEND | LOCK_EX);
 			}
-	}
 
-	echo "Select done!";
+		//clear timeArray
+		$timeArray= [];
+	}
 ?>

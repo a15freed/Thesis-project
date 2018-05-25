@@ -1,21 +1,12 @@
 <?php
-// https://stackoverflow.com/questions/43834471/php-create-json-with-foreach
-// https://stackoverflow.com/questions/6054033/pretty-printing-json-with-php
-// https://stackoverflow.com/questions/8169139/adding-minutes-to-date-time-in-php
-// http://www.postgresqltutorial.com/postgresql-json/
-// https://datavirtuality.com/blog/json-in-postgresql/
-// https://stackoverflow.com/questions/6245971/accurate-way-to-measure-execution-times-of-php-scripts
-// https://stackoverflow.com/questions/18765899/im-using-php-and-need-to-insert-into-sql-using-a-while-loop
-// http://thisinterestsme.com/php-calculate-execution-time/
-
 // this will include the file dbconnect.php which contains credentials
 include "../dbconnect.php";
 
-set_time_limit(7200);
+set_time_limit(0);
 
 // variables
-$iterations =2;							// how many runs
-$inserts = 10;      				// inserts to do (customers)
+$iterations =5;							// how many runs
+$inserts = 5000;      				// inserts to do (customers)
 $measures = 1440;     				// measures per inserts
 $fileNr = 0;									// save file counter
 $idM = 123456;        				// random measurements ID
@@ -27,6 +18,7 @@ $timeArray= [];								// array to push response time
 // start iteration
 $index = 1;
 while($index <= $iterations){
+	$timeStart2 = microtime(true);
 	$index++;
 	$fileNr++;
 
@@ -65,20 +57,20 @@ while($index <= $iterations){
 	      	);
 			array_push($jsonArray['measurements'], $Data);
 		}
+		// encode php array to string
+    $jsonArrayEncoded = json_encode($jsonArray);
+
+    $sqlQuery = "INSERT INTO json_table (data) VALUES ('$jsonArrayEncoded')";
+    $runQuery = pg_query($dbconn, $sqlQuery);
+
 		$timeEnd = microtime(true);
-
-		// encode array to string
-		$jsonArrayEncoded = json_encode($jsonArray);
-
-		// insert array to database
-		$sqlQuery = "INSERT INTO json_table (data) VALUES ('$jsonArrayEncoded')";
-		$runQuery = pg_query($dbconn, $sqlQuery);
 
 		//Measure response time and push to array
 		$timeDiff = $timeEnd - $timeStart;
-		$timeDiff = number_format(($timeDiff), 4);
+		$timeDiff = number_format(($timeDiff), 6);
 		array_push($timeArray, $timeDiff);
 	}
+	$timeEnd2 = microtime(true);
 
 	// write values from timeArray to file
 	$file = 'measurements_plot_'.$fileNr.'.txt';
@@ -89,10 +81,17 @@ while($index <= $iterations){
 	//clear timeArray
 	$timeArray= [];
 
+	// calc time
+  $timeDiff2 = $timeEnd2 - $timeStart2;
+  $timeDiff2 = number_format(($timeDiff2), 3);
+
+  // write values from timeArray to file
+  $file = 'measurements.txt';
+  file_put_contents($file, $timeDiff2.PHP_EOL, FILE_APPEND | LOCK_EX);
+
 	// clear DB after each iteration except after last one
 	if ($index < $iterations) {
 		include('initdb.php');
 	}
-		// do nothing
 }
 ?>
